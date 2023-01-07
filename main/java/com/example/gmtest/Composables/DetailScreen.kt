@@ -31,7 +31,7 @@ import com.example.gmtest.models.UpdateModel
 
 
 @Composable
-fun <T: Any> rememberMutableStateListOf(vararg elements: T): SnapshotStateList<T> {
+fun <T : Any> rememberMutableStateListOf(vararg elements: T): SnapshotStateList<T> {
     return rememberSaveable(
         saver = listSaver(
             save = { stateList ->
@@ -51,16 +51,29 @@ fun <T: Any> rememberMutableStateListOf(vararg elements: T): SnapshotStateList<T
 }
 
 
+
+fun Modifier.orientationModifier(flag: Boolean, modifier: Modifier = this): Modifier {
+    if (!flag)
+        return modifier
+            .size(400.dp)
+            .heightIn(max = 200.dp)
+            .background(Color.Transparent)
+    else
+        return modifier
+            .size(400.dp)
+            .heightIn(max = 200.dp)
+            .background(Color.Blue)
+}
+
 @Composable
-fun pictureBox(updateModel: UpdateModel = UpdateModel(), person: ContactModel){
-    Box(modifier = Modifier
-        //.aspectRatio(1f)
-        .size(400.dp)
-        .heightIn(max = 200.dp)
-        .background(Color.Blue),
+fun PictureBox(updateModel: UpdateModel = UpdateModel(), person: ContactModel) {
+
+    val image = updateModel.getPhotoFromUri(person.photoURI, LocalContext.current)
+    Box(
+        Modifier.orientationModifier(image==null),
         contentAlignment = Alignment.Center
     ) {
-        val image = updateModel.getPhotoFromUri(person.photoURI, LocalContext.current)
+
         if (image == null) {
             Text(
                 text = person.name!![0].toString(),
@@ -83,9 +96,13 @@ fun pictureBox(updateModel: UpdateModel = UpdateModel(), person: ContactModel){
 }
 
 @Composable
-fun Details(valueStateList: SnapshotStateList<String>, person: ContactModel, updateModel: UpdateModel = UpdateModel()){
+fun Details(
+    valueStateList: SnapshotStateList<String>,
+    person: ContactModel,
+    updateModel: UpdateModel = UpdateModel()
+) {
     Divider(modifier = Modifier.padding(10.dp))
-    var res = LocalContext.current.contentResolver
+    val res = LocalContext.current.contentResolver
     var t = 1
     val lo = LocalContext.current
     TextField(
@@ -134,9 +151,9 @@ fun Details(valueStateList: SnapshotStateList<String>, person: ContactModel, upd
 @Composable
 fun DetailsScreen(person: ContactModel, updateModel: UpdateModel = UpdateModel()) {
 
-    var valueStateList = rememberMutableStateListOf<String>()
+    val valueStateList = rememberMutableStateListOf<String>()
 
-    if( valueStateList.size == 0){
+    if (valueStateList.size == 0) {
         valueStateList.add(person.name.toString())
         valueStateList.addAll(person.mobileNumber)
         valueStateList.addAll(person.email)
@@ -146,45 +163,43 @@ fun DetailsScreen(person: ContactModel, updateModel: UpdateModel = UpdateModel()
 
 
 
-    when(LocalConfiguration.current.orientation){
-       ORIENTATION_LANDSCAPE -> {
-          Row(
-              modifier = Modifier
-                  //.fillMaxSize()
-                  .background(Color.DarkGray)
-                  //.wrapContentSize(Alignment.TopCenter)
+    when (LocalConfiguration.current.orientation) {
+        ORIENTATION_LANDSCAPE -> {
+            Row(
+                modifier = Modifier
+                    //.fillMaxSize()
+                    .background(Color.DarkGray)
+                //.wrapContentSize(Alignment.TopCenter)
 
-          ){
-              pictureBox(updateModel, person)
-              Column(
-                  modifier = Modifier
-                      //.fillMaxSize()
-                      .background(Color.DarkGray)
-                      //.wrapContentSize(Alignment.TopCenter)
-                      .verticalScroll(rememberScrollState())
-              ) {
-                  Details(valueStateList, person, updateModel)
-              }
-          }
-       }
-        else->{
+            ) {
+                PictureBox(updateModel, person)
+                Column(
+                    modifier = Modifier
+                        //.fillMaxSize()
+                        .background(Color.DarkGray)
+                        //.wrapContentSize(Alignment.TopCenter)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Details(valueStateList, person, updateModel)
+                }
+            }
+        }
+        else -> {
             Column(
                 modifier = Modifier
                     //.fillMaxSize()
                     .background(Color.DarkGray)
                     //.wrapContentSize(Alignment.TopCenter)
                     .verticalScroll(rememberScrollState())
-            ){
-                pictureBox(updateModel, person)
+            ) {
+                PictureBox(updateModel, person)
                 Details(valueStateList, person, updateModel)
             }
         }
     }
 
 
-
 }
-
 
 
 @Preview(showBackground = true)
