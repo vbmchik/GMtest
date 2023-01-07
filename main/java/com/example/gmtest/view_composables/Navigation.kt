@@ -1,4 +1,4 @@
-package com.example.gmtest.Composables
+package com.example.gmtest.view_composables
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext

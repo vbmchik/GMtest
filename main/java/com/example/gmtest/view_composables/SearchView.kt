@@ -1,4 +1,4 @@
-package com.example.gmtest.Composables
+package com.example.gmtest.view_composables
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

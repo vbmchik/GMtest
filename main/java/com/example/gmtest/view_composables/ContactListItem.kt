@@ -1,4 +1,4 @@
-package com.example.gmtest.Composables
+package com.example.gmtest.view_composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

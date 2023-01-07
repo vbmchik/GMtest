@@ -1,4 +1,4 @@
-package com.example.gmtest.Composables
+package com.example.gmtest.view_composables
 
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun SearchBar() {
     TopAppBar(
-        title = { Text(text = "Search", fontSize = 18.sp, fontFamily = FontFamily.SansSerif) },
+        title = { Text(text = "Contacts", fontSize = 18.sp, fontFamily = FontFamily.SansSerif) },
         backgroundColor = Color.LightGray,
         contentColor = Color.Blue
     )

@@ -1,4 +1,4 @@
-package com.example.gmtest.Composables
+package com.example.gmtest.view_composables
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,9 +25,9 @@ fun ContactsList(navController: NavController, state: MutableState<TextFieldValu
         val searchedText = state.value.text
         reducedContacts = if (searchedText.isEmpty()) (
                 contacts
-                )!! else {
+                ) else {
             val resultList = ArrayList<ContactModel>()
-            for (contact in contacts!!) {
+            for (contact in contacts) {
                 if (contact.name!!.lowercase()
                         .contains(searchedText.lowercase())
                 ) {
@@ -37,9 +37,9 @@ fun ContactsList(navController: NavController, state: MutableState<TextFieldValu
             resultList
         }
         items(reducedContacts.size) { x ->
-            var p : String?;
-            if( reducedContacts[x].mobileNumber!!.size > 0)
-                p = reducedContacts[x].mobileNumber!![0]
+            val p : String?
+            if( reducedContacts[x].mobileNumber.size > 0)
+                p = reducedContacts[x].mobileNumber[0]
             else
                 p = null
             ContactListItem(
@@ -69,7 +69,7 @@ fun ContactsList(navController: NavController, state: MutableState<TextFieldValu
 @Composable
 fun ContactsListPreview() {
     val navController = rememberNavController()
-    var textState = remember {
+    val textState = remember {
         mutableStateOf(TextFieldValue(""))
     }
     ContactsList(navController = navController, state = textState)

@@ -1,4 +1,4 @@
-package com.example.gmtest.Composables
+package com.example.gmtest.view_composables
 
 
 import android.annotation.SuppressLint
@@ -117,7 +117,7 @@ fun Details(
         },
         textStyle = TextStyle(color = Color.White, fontSize = 18.sp),
         singleLine = true,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().background(Color.DarkGray)
     )
     for (phone in person.mobileNumber) {
         val p = t
@@ -128,7 +128,7 @@ fun Details(
             },
             textStyle = TextStyle(color = Color.Green, fontSize = 18.sp),
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().background(Color.DarkGray)
         )
         t++
     }
@@ -141,7 +141,7 @@ fun Details(
             },
             textStyle = TextStyle(color = Color.Red, fontSize = 18.sp),
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().background(Color.DarkGray)
         )
         t++
     }
@@ -165,15 +165,12 @@ fun DetailsScreen(person: ContactModel, updateModel: UpdateModel = UpdateModel()
     }
 
 
-
-
-
     when (LocalConfiguration.current.orientation) {
         ORIENTATION_LANDSCAPE -> {
             Row(
                 modifier = Modifier
                     //.fillMaxSize()
-                    .background(Color.DarkGray)
+                    .background(Color.Transparent)
                 //.wrapContentSize(Alignment.TopCenter)
 
             ) {
@@ -193,7 +190,7 @@ fun DetailsScreen(person: ContactModel, updateModel: UpdateModel = UpdateModel()
             Column(
                 modifier = Modifier
                     //.fillMaxSize()
-                    .background(Color.DarkGray)
+                    .background(Color.Transparent)
                     //.wrapContentSize(Alignment.TopCenter)
                     .verticalScroll(rememberScrollState())
             ) {
