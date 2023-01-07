@@ -9,18 +9,16 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.IOException
 
+@Suppress("DEPRECATION")
 class FlowModel(context: Context) : ViewModel() {
 
   companion object {
@@ -29,25 +27,26 @@ class FlowModel(context: Context) : ViewModel() {
       var savableText: String = ""
   }
 
-    var ctx: Context?
+    @SuppressLint("StaticFieldLeak")
+    private var ctx: Context?
 
 
     init {
         ctx = context
         viewModelScope.launch {
-            contactList = fetchData()
+            contactList = async{fetchData()}.await()
             ctx = null
         }
 
     }
 
     suspend fun fetchData() : ArrayList<ContactModel>{
-        return coroutineScope {  getContacts(ctx!!)!! }
+        return coroutineScope { getContacts(ctx!!) }
     }
 
 
     @SuppressLint("Range", "NewApi")
-    fun getContacts(ctx: Context): ArrayList<ContactModel>? {
+    fun getContacts(ctx: Context): ArrayList<ContactModel> {
         if (contactList.size > 0) return contactList
         val list: ArrayList<ContactModel> = ArrayList()
         val contentResolver: ContentResolver = ctx.contentResolver
@@ -72,7 +71,7 @@ class FlowModel(context: Context) : ViewModel() {
                         Uri.withAppendedPath(person, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY)
                             .toString()
                     val name =
-                        cursor!!.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+                        cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
                     val info = ContactModel()
                     info.id = id
                     info.lid = lid
@@ -104,22 +103,20 @@ class FlowModel(context: Context) : ViewModel() {
                 }
 
             }
-            cursor!!.close()
+            cursor.close()
         }
         list.sortBy { x -> x.name }
         contactList = list
         return list
     }
 
-    fun getBitmap(tUri: String, id: Long, ctx: Context): ImageBitmap? {
+    fun getBitmap(tUri: String, ctx: Context): ImageBitmap? {
         var bitmap: Bitmap? = null
-        if (tUri != null) {
-            try {
-                bitmap = MediaStore.Images.Media.getBitmap(ctx.contentResolver, Uri.parse(tUri))
-            } catch (e: IOException) {
-                // Do nothing
-                e.printStackTrace()
-            }
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(ctx.contentResolver, Uri.parse(tUri))
+        } catch (e: IOException) {
+            // Do nothing
+            e.printStackTrace()
         }
         if (bitmap != null) {
             return bitmap.asImageBitmap()
