@@ -3,6 +3,7 @@ package com.example.gmtest.view_composables
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -146,8 +147,10 @@ fun Details(
         t++
     }
     Divider(modifier = Modifier.padding(10.dp))
+    val c = LocalContext.current
     Button(onClick = {
         updateModel.editContact(lo, ctx = res, contact = person, state = valueStateList)
+        Toast.makeText(c,"Saved!",Toast.LENGTH_SHORT).show()
     }) {
         Text(text = "Save changes!")
     }

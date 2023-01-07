@@ -57,7 +57,7 @@ fun ContactListItem(
 
                 } else {
                     Image(
-                        bitmap = flowModel.getBitmap(thumbnail, id, LocalContext.current)!!,
+                        bitmap = flowModel.getBitmap(thumbnail, LocalContext.current)!!,
                         contentDescription = "",
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
