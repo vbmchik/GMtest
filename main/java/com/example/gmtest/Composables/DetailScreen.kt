@@ -1,6 +1,7 @@
 package com.example.gmtest.Composables
 
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -52,17 +53,21 @@ fun <T : Any> rememberMutableStateListOf(vararg elements: T): SnapshotStateList<
 
 
 
-fun Modifier.orientationModifier(flag: Boolean, modifier: Modifier = this): Modifier {
-    if (!flag)
-        return modifier
-            .size(400.dp)
-            .heightIn(max = 200.dp)
-            .background(Color.Transparent)
-    else
-        return modifier
-            .size(400.dp)
-            .heightIn(max = 200.dp)
-            .background(Color.Blue)
+
+@SuppressLint("ModifierFactoryExtensionFunction")
+fun orientationModifier(flag: Boolean): Modifier
+{
+        if (!flag)
+            return Modifier
+                .size(400.dp)
+                .heightIn(max = 200.dp)
+                .background(Color.Transparent)
+        else
+            return Modifier
+                .size(400.dp)
+                .heightIn(max = 200.dp)
+                .background(Color.Blue)
+
 }
 
 @Composable
@@ -70,7 +75,7 @@ fun PictureBox(updateModel: UpdateModel = UpdateModel(), person: ContactModel) {
 
     val image = updateModel.getPhotoFromUri(person.photoURI, LocalContext.current)
     Box(
-        Modifier.orientationModifier(image==null),
+        orientationModifier(image==null),
         contentAlignment = Alignment.Center
     ) {
 
