@@ -46,7 +46,7 @@ class FlowModel() : ViewModel() {
     }
 
     @SuppressLint("SuspiciousIndentation")
-    suspend fun fetchData(ctx: Context): ArrayList<ContactModel> ? = withContext(Dispatchers.IO) {
+    private suspend fun fetchData(ctx: Context): ArrayList<ContactModel> ? = withContext(Dispatchers.IO) {
         var c: ArrayList<ContactModel>? = null
         if (!used)
             c =  getContacts(ctx!!)
@@ -60,7 +60,7 @@ class FlowModel() : ViewModel() {
    }
 
     @SuppressLint("Range", "NewApi")
-    suspend fun getContacts(ctx: Context): ArrayList<ContactModel> {
+    private fun getContacts(ctx: Context): ArrayList<ContactModel> {
         if (contactList.size > 0 || used ) return contactList
         used=true
         val list: ArrayList<ContactModel> = ArrayList()
