@@ -8,20 +8,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.gmtest.models.FlowModel
+import kotlinx.coroutines.flow.flow
 
 @Composable
-fun Navigation(flowModel: FlowModel = FlowModel(LocalContext.current) ){
+fun Navigation(flowModel: FlowModel = FlowModel() ){
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "main") {
         composable("main") {
-            MainScreen(navController = navController)
+            MainScreen(navController = navController, flowModel = flowModel)
         }
         composable(
             "details/{contactName}",
             arguments = listOf(navArgument("contactName") { type = NavType.StringType })
         ) { backStackEntry ->
             backStackEntry.arguments?.getString("contactName")?.let { name ->
-                DetailsScreen(person = flowModel.getContacts(LocalContext.current)!!.find { it.id == name }!!)
+                DetailsScreen(person = flowModel.uiState.value!!.find { it.id == name }!!)
             }
         }
     }

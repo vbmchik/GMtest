@@ -1,33 +1,40 @@
 package com.example.gmtest.view_composables
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gmtest.models.ContactModel
 import com.example.gmtest.models.FlowModel
+import kotlinx.coroutines.*
+
 
 @Composable
-fun ContactsList(navController: NavController, state: MutableState<TextFieldValue>, flowModel: FlowModel = FlowModel(
-    LocalContext.current)
+fun ContactsList(navController: NavController, state: MutableState<TextFieldValue>, flowModel: FlowModel = FlowModel()
 ) {
-    val contacts = flowModel.getContacts(LocalContext.current)!!
+
+    var contacts =  flowModel.uiState.observeAsState(initial = ArrayList<ContactModel>())
     var reducedContacts: ArrayList<ContactModel>
+
+    //flowModel.fectcher(LocalContext.current)
+    //var reducedContacts: ArrayList<ContactModel>
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         val searchedText = state.value.text
+
         reducedContacts = if (searchedText.isEmpty()) (
-                contacts
+                contacts.value
                 ) else {
             val resultList = ArrayList<ContactModel>()
-            for (contact in contacts) {
+
+            for (contact in contacts.value!!) {
                 if (contact.name!!.lowercase()
                         .contains(searchedText.lowercase())
                 ) {
@@ -59,7 +66,8 @@ fun ContactsList(navController: NavController, state: MutableState<TextFieldValu
 // use cache
                         restoreState = true
                     }
-                }
+                },
+                flowModel
             )
         }
     }

@@ -52,6 +52,7 @@ fun SearchView(textState: MutableState<TextFieldValue>) {
                 IconButton(
                     onClick = {
                         textState.value = TextFieldValue("")
+                        FlowModel.savableText = ""
                     }
                 ) {
                     Icon(

@@ -61,12 +61,12 @@ fun orientationModifier(flag: Boolean): Modifier
         if (!flag)
             return Modifier
                 .size(400.dp)
-                .heightIn(max = 200.dp)
+                .heightIn(max = 80.dp)
                 .background(Color.Transparent)
         else
             return Modifier
-                .size(400.dp)
-                .heightIn(max = 200.dp)
+                .size(250.dp)
+                //.heightIn(max = 120.dp)
                 .background(Color.Blue)
 
 }
@@ -83,7 +83,7 @@ fun PictureBox(updateModel: UpdateModel = UpdateModel(), person: ContactModel) {
         if (image == null) {
             Text(
                 text = person.name!![0].toString(),
-                fontSize = 200.sp,
+                fontSize = 120.sp,
                 color = Color.White,
                 textAlign = TextAlign.Center,
             )
@@ -173,6 +173,7 @@ fun DetailsScreen(person: ContactModel, updateModel: UpdateModel = UpdateModel()
             Row(
                 modifier = Modifier
                     //.fillMaxSize()
+                    .fillMaxHeight()
                     .background(Color.Transparent)
                 //.wrapContentSize(Alignment.TopCenter)
 
@@ -180,7 +181,7 @@ fun DetailsScreen(person: ContactModel, updateModel: UpdateModel = UpdateModel()
                 PictureBox(updateModel, person)
                 Column(
                     modifier = Modifier
-                        //.fillMaxSize()
+                        .fillMaxHeight()
                         .background(Color.DarkGray)
                         //.wrapContentSize(Alignment.TopCenter)
                         .verticalScroll(rememberScrollState())

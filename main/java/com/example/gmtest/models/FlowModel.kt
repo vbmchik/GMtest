@@ -9,52 +9,68 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import com.example.gmtest.models.FlowModel.Companion.contactList
+import com.example.gmtest.models.FlowModel.Companion.used
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.io.IOException
 
 @Suppress("DEPRECATION")
-class FlowModel(context: Context) : ViewModel() {
+class FlowModel() : ViewModel() {
 
-  companion object {
-      var contactList = ArrayList<ContactModel>()
+    companion object {
+        var contactList = ArrayList<ContactModel>()
+        var used = false
+        var savableText: String = ""
+    }
+    val uiState: MutableLiveData<ArrayList<ContactModel>> by lazy {
+        MutableLiveData<ArrayList<ContactModel>>()
+    }
 
-      var savableText: String = ""
-  }
+    init{
+        uiState.value = contactList
+    }
 
-    @SuppressLint("StaticFieldLeak")
-    private var ctx: Context?
-
-
-    init {
-        ctx = context
+    fun fectcher(ctx: Context){
         viewModelScope.launch {
-            contactList = async{fetchData()}.await()
-            ctx = null
+            async{fetchData(ctx)}
         }
-
     }
 
-    suspend fun fetchData() : ArrayList<ContactModel>{
-        return coroutineScope { getContacts(ctx!!) }
-    }
-
+    @SuppressLint("SuspiciousIndentation")
+    suspend fun fetchData(ctx: Context): ArrayList<ContactModel> ? = withContext(Dispatchers.IO) {
+        var c: ArrayList<ContactModel>? = null
+        if (!used)
+            c =  getContacts(ctx!!)
+        viewModelScope.launch {
+            if (c!=null)
+                uiState.value =c
+            else
+                uiState.value = contactList
+        }
+      uiState.value
+   }
 
     @SuppressLint("Range", "NewApi")
-    fun getContacts(ctx: Context): ArrayList<ContactModel> {
-        if (contactList.size > 0) return contactList
+    suspend fun getContacts(ctx: Context): ArrayList<ContactModel> {
+        if (contactList.size > 0 || used ) return contactList
+        used=true
         val list: ArrayList<ContactModel> = ArrayList()
         val contentResolver: ContentResolver = ctx.contentResolver
         val cursor: Cursor? =
             contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
         if (cursor!!.count > 0) {
             while (cursor.moveToNext()) {
-                val id: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+                val id: String =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
                 val lid: Long = cursor.getLong(cursor.getColumnIndex(ContactsContract.Contacts._ID))
                 if (cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
                     val cursorInfo: Cursor? = contentResolver.query(
@@ -68,7 +84,10 @@ class FlowModel(context: Context) : ViewModel() {
 
                     val pURI =
                         //cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
-                        Uri.withAppendedPath(person, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY)
+                        Uri.withAppendedPath(
+                            person,
+                            ContactsContract.Contacts.Photo.CONTENT_DIRECTORY
+                        )
                             .toString()
                     val name =
                         cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
@@ -106,7 +125,8 @@ class FlowModel(context: Context) : ViewModel() {
             cursor.close()
         }
         list.sortBy { x -> x.name }
-        contactList = list
+        if(contactList.size == 0)
+            contactList = list
         return list
     }
 

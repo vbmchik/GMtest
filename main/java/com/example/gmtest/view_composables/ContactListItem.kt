@@ -27,7 +27,7 @@ fun ContactListItem(
     thumbnail: String?,
     phone: String?,
     onItemClick: (String) -> Unit,
-    flowModel: FlowModel = FlowModel(LocalContext.current)
+    flowModel: FlowModel = FlowModel()
 ) {
     Box(
         modifier = Modifier
