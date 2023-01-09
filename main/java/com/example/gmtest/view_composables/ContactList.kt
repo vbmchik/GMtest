@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
@@ -21,10 +22,9 @@ import kotlinx.coroutines.*
 fun ContactsList(navController: NavController, state: MutableState<TextFieldValue>, flowModel: FlowModel = FlowModel()
 ) {
 
-    var contacts =  flowModel.uiState.observeAsState()
-    var size = remember{
-        mutableStateOf(flowModel.uiState.value!!.size)}
-    var reducedContacts: ArrayList<ContactModel>
+    //var contacts =  flowModel.uiState.observeAsState()
+    val contacts = flowModel.contacts
+    var reducedContacts: SnapshotStateList<ContactModel>
 
     //flowModel.fectcher(LocalContext.current)
     //var reducedContacts: ArrayList<ContactModel>
@@ -32,11 +32,11 @@ fun ContactsList(navController: NavController, state: MutableState<TextFieldValu
         val searchedText = state.value.text
 
         reducedContacts = if (searchedText.isEmpty()) (
-                contacts.value!!
+                contacts.value
                 ) else {
-            val resultList = ArrayList<ContactModel>()
+            val resultList = SnapshotStateList<ContactModel>()
 
-            for (contact in contacts.value!!) {
+            for (contact in contacts.value) {
                 if (contact.name!!.lowercase()
                         .contains(searchedText.lowercase())
                 ) {

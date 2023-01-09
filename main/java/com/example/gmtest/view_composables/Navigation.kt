@@ -22,7 +22,7 @@ fun Navigation(flowModel: FlowModel = FlowModel() ){
             arguments = listOf(navArgument("contactName") { type = NavType.StringType })
         ) { backStackEntry ->
             backStackEntry.arguments?.getString("contactName")?.let { name ->
-                DetailsScreen(person = flowModel.uiState.value!!.find { it.id == name }!!)
+                DetailsScreen(person = flowModel.contacts.value!!.find { it.id == name }!!)
             }
         }
     }

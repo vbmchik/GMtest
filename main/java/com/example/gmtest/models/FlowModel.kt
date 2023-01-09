@@ -9,7 +9,9 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.LiveData
@@ -34,9 +36,12 @@ class FlowModel() : ViewModel() {
     val uiState: MutableLiveData<ArrayList<ContactModel>> by lazy {
         MutableLiveData<ArrayList<ContactModel>>()
     }
-
+    //val contacts = mutableStateListOf<ContactModel>( )
+    private val _contacts = MutableStateFlow<SnapshotStateList<ContactModel>>(mutableStateListOf())
+    val contacts: StateFlow<SnapshotStateList<ContactModel>> = _contacts
     init{
         uiState.value = ArrayList<ContactModel>()
+        //contacts = uiState.value!!
     }
 
     fun fectcher(ctx: Context){
@@ -75,7 +80,7 @@ class FlowModel() : ViewModel() {
                 if (cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
                     val cursorInfo: Cursor? = contentResolver.query(
                         ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, null
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, "DISPLAY_NAME ASC"
                     )
                     val person: Uri =
                         ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, lid)
@@ -117,7 +122,8 @@ class FlowModel() : ViewModel() {
                             info.email.add(e)
                     }
                     viewModelScope.launch {
-                        uiState.value!!.add(info)
+                        contacts.value.add(info)
+                        //contacts.value[0] = contacts.value[0].copy(selected = true)
                     }
                     list.add(info)
                     cursorInfo!!.close()
