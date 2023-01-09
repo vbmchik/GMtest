@@ -36,7 +36,7 @@ class FlowModel() : ViewModel() {
     }
 
     init{
-        uiState.value = contactList
+        uiState.value = ArrayList<ContactModel>()
     }
 
     fun fectcher(ctx: Context){
@@ -52,7 +52,7 @@ class FlowModel() : ViewModel() {
             c =  getContacts(ctx!!)
         viewModelScope.launch {
             if (c!=null)
-                uiState.value =c
+                //uiState.value =c
             else
                 uiState.value = contactList
         }
@@ -98,6 +98,7 @@ class FlowModel() : ViewModel() {
                         name
                     info.photoURI = pURI
                     info.thumbUri = tUri
+
                     while (cursorInfo!!.moveToNext()) {
                         val p =
                             cursorInfo.getString(cursorInfo.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
@@ -115,9 +116,11 @@ class FlowModel() : ViewModel() {
                         if (e != null)
                             info.email.add(e)
                     }
-
+                    viewModelScope.launch {
+                        uiState.value!!.add(info)
+                    }
                     list.add(info)
-                    cursorInfo.close()
+                    cursorInfo!!.close()
                     mailcursor.close()
                 }
 

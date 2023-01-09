@@ -21,7 +21,9 @@ import kotlinx.coroutines.*
 fun ContactsList(navController: NavController, state: MutableState<TextFieldValue>, flowModel: FlowModel = FlowModel()
 ) {
 
-    var contacts =  flowModel.uiState.observeAsState(initial = ArrayList<ContactModel>())
+    var contacts =  flowModel.uiState.observeAsState()
+    var size = remember{
+        mutableStateOf(flowModel.uiState.value!!.size)}
     var reducedContacts: ArrayList<ContactModel>
 
     //flowModel.fectcher(LocalContext.current)
@@ -30,7 +32,7 @@ fun ContactsList(navController: NavController, state: MutableState<TextFieldValu
         val searchedText = state.value.text
 
         reducedContacts = if (searchedText.isEmpty()) (
-                contacts.value
+                contacts.value!!
                 ) else {
             val resultList = ArrayList<ContactModel>()
 
