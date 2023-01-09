@@ -10,16 +10,12 @@ import android.net.Uri
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gmtest.models.FlowModel.Companion.contactList
-import com.example.gmtest.models.FlowModel.Companion.used
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,19 +25,17 @@ import java.io.IOException
 class FlowModel() : ViewModel() {
 
     companion object {
-        var contactList = ArrayList<ContactModel>()
         var used = false
         var savableText: String = ""
     }
     val uiState: MutableLiveData<ArrayList<ContactModel>> by lazy {
         MutableLiveData<ArrayList<ContactModel>>()
     }
-    //val contacts = mutableStateListOf<ContactModel>( )
+
     private val _contacts = MutableStateFlow<SnapshotStateList<ContactModel>>(mutableStateListOf())
     val contacts: StateFlow<SnapshotStateList<ContactModel>> = _contacts
     init{
-        uiState.value = ArrayList<ContactModel>()
-        //contacts = uiState.value!!
+     uiState.value = ArrayList()
     }
 
     fun fectcher(ctx: Context){
@@ -51,27 +45,21 @@ class FlowModel() : ViewModel() {
     }
 
     @SuppressLint("SuspiciousIndentation")
-    private suspend fun fetchData(ctx: Context): ArrayList<ContactModel> ? = withContext(Dispatchers.IO) {
+    private suspend fun fetchData(ctx: Context)  = withContext(Dispatchers.IO) {
         var c: ArrayList<ContactModel>? = null
         if (!used)
-            c =  getContacts(ctx!!)
-        viewModelScope.launch {
-            if (c!=null)
-                //uiState.value =c
-            else
-                uiState.value = contactList
-        }
+            getContacts(ctx!!)
+
       uiState.value
    }
 
     @SuppressLint("Range", "NewApi")
-    private fun getContacts(ctx: Context): ArrayList<ContactModel> {
-        if (contactList.size > 0 || used ) return contactList
+    private fun getContacts(ctx: Context) {
+        if (uiState.value!!.size > 0 || used ) return
         used=true
-        val list: ArrayList<ContactModel> = ArrayList()
         val contentResolver: ContentResolver = ctx.contentResolver
         val cursor: Cursor? =
-            contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
+            contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, "DISPLAY_NAME ASC")
         if (cursor!!.count > 0) {
             while (cursor.moveToNext()) {
                 val id: String =
@@ -80,7 +68,7 @@ class FlowModel() : ViewModel() {
                 if (cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
                     val cursorInfo: Cursor? = contentResolver.query(
                         ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, "DISPLAY_NAME ASC"
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, null
                     )
                     val person: Uri =
                         ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, lid)
@@ -88,7 +76,6 @@ class FlowModel() : ViewModel() {
                         cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI))
 
                     val pURI =
-                        //cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI))
                         Uri.withAppendedPath(
                             person,
                             ContactsContract.Contacts.Photo.CONTENT_DIRECTORY
@@ -113,7 +100,7 @@ class FlowModel() : ViewModel() {
 
                     val mailcursor: Cursor? = contentResolver.query(
                         ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                        ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + id, null, null
+                        ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + id, null, "DISPLAY_NAME ASC"
                     )
                     while (mailcursor!!.moveToNext()) {
                         val e =
@@ -123,9 +110,8 @@ class FlowModel() : ViewModel() {
                     }
                     viewModelScope.launch {
                         contacts.value.add(info)
-                        //contacts.value[0] = contacts.value[0].copy(selected = true)
                     }
-                    list.add(info)
+
                     cursorInfo!!.close()
                     mailcursor.close()
                 }
@@ -133,10 +119,8 @@ class FlowModel() : ViewModel() {
             }
             cursor.close()
         }
-        list.sortBy { x -> x.name }
-        if(contactList.size == 0)
-            contactList = list
-        return list
+
+        return
     }
 
     fun getBitmap(tUri: String, ctx: Context): ImageBitmap? {
